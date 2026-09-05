@@ -48,41 +48,37 @@ function renderWorkspaceLayers() {
         layerContainer.style.backgroundSize = `${targetDisplayWidth}px auto`;
         layerContainer.style.backgroundRepeat = 'no-repeat';
 
+        // Base structural design calculation rule: Layout boxes stay at their clean stitched sizing!
+        const compiledHeight = photo.displayHeight - photo.cropTop - photo.cropBottom;
+        layerContainer.style.height = `${compiledHeight}px`;
+
         if (projectWorkspace.selectedImageIndex === null) {
-            // Preview Mode: Clip the containers tightly to show the clean, permanent stitch lines
-            const compiledHeight = photo.displayHeight - photo.cropTop - photo.cropBottom;
-            layerContainer.style.height = `${compiledHeight}px`;
+            // Preview Mode: Display normal tight layout crops
             layerContainer.style.backgroundPosition = `0px -${photo.cropTop}px`;
-            layerContainer.style.transform = 'none';
             layerContainer.style.zIndex = '1';
             layerContainer.style.opacity = '1.0';
+            layerContainer.style.marginTop = '0px';
+            layerContainer.style.marginBottom = '0px';
         } else if (projectWorkspace.selectedImageIndex === index) {
-            // Selected Base: Stationary background anchor frame. We see it completely uncropped
+            // Selected Base: Stationary background anchor frame. We reveal its full original image height
             layerContainer.style.height = `${photo.displayHeight}px`;
             layerContainer.style.backgroundPosition = `0px 0px`;
-            layerContainer.style.transform = 'none';
-            layerContainer.style.zIndex = '1'; 
+            
+            // FIX: Pull adjacent elements inward over it by using negative margins matching the active crop values
+            layerContainer.style.marginTop = `-${photo.cropTop}px`;
+            layerContainer.style.marginBottom = `-${photo.cropBottom}px`;
+            
+            layerContainer.style.zIndex = '1'; // Sits securely behind at the bottom
             layerContainer.style.opacity = '1.0'; 
             layerContainer.classList.add('selected-base-anchor');
         } else {
-            // Stencil Overlays: Render them based on their own saved crop configurations
-            const compiledHeight = photo.displayHeight - photo.cropTop - photo.cropBottom;
-            layerContainer.style.height = `${compiledHeight}px`;
+            // Stencil Overlays: Keep their normal stitched height parameters and slide on top cleanly
             layerContainer.style.backgroundPosition = `0px -${photo.cropTop}px`;
-            layerContainer.style.zIndex = '2'; 
-            layerContainer.style.opacity = '0.55'; 
+            layerContainer.style.zIndex = '2'; // Brought to front layer
+            layerContainer.style.opacity = '0.55'; // Turned semi-transparent stencil
             layerContainer.classList.add('screenshot-overlay-mask');
-
-            // Shift calculation: The overlay sheets move smoothly to cover or reveal the base
-            // based strictly on the selected photo's active top or bottom crop value displacement.
-            const selectedPhoto = uploadedPhotos[projectWorkspace.selectedImageIndex];
-            if (index < projectWorkspace.selectedImageIndex) {
-                // Images ABOVE move down based on the selected image's cropTop parameter shift
-                layerContainer.style.transform = `translateY(${selectedPhoto.cropTop}px)`;
-            } else {
-                // Images BELOW move up based on the selected image's cropBottom parameter shift
-                layerContainer.style.transform = `translateY(-${selectedPhoto.cropBottom}px)`;
-            }
+            layerContainer.style.marginTop = '0px';
+            layerContainer.style.marginBottom = '0px';
         }
 
         layerContainer.addEventListener('click', (event) => {
@@ -223,11 +219,10 @@ function setupGlobalEventListeners() {
         const activePhoto = uploadedPhotos[projectWorkspace.selectedImageIndex];
 
         if (projectWorkspace.activeHandleType === 'top') {
-            // Dragging the handle only mutates the active photo's crop boundary offset properties.
-            // Neighbors are never cropped or modified; their position shifts dynamically in render.
+            // Adjust the top boundary displacement offset
             activePhoto.cropTop = projectWorkspace.initialCropValue + deltaPixelY;
         } else if (projectWorkspace.activeHandleType === 'bottom') {
-            // Dragging the handle only mutates the active photo's crop boundary offset properties.
+            // Adjust the bottom boundary displacement offset
             activePhoto.cropBottom = projectWorkspace.initialCropValue - deltaPixelY;
         }
 
