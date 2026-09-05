@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropTop Workspace</title>
+    
+    <!-- Google Material Fonts & Design Token Symbols -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    <link href="https://googleapis.com" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Import Polished Material 3 Custom Elements directly via ESM Modules -->
+    <script type="module">
+        import '@esm.sh/@material/web/button/filled-button.js';
+        import '@esm.sh/@material/web/button/elevation.js';
+        import '@esm.sh/@material/web/ripple/ripple.js';
+        import '@esm.sh/@material/web/slider/slider.js';
+        import '@esm.sh/@material/web/icon/icon.js';
+    </script>
+</head>
+<body>
+
+    <!-- Main Application Shell Container -->
+    <main class="workspace-container">
+        
+        <!-- Interactive Header Bar Structure -->
+        <header class="m3-top-app-bar">
+            <div class="app-bar-leading">
+                <span class="material-symbols-rounded">layers</span>
+                <h1 class="m3-title">CropTop Canvas</h1>
+            </div>
+            
+            <md-filled-button id="download-trigger">
+                <md-icon slot="icon">download</md-icon>
+                Export Stitch
+            </md-filled-button>
+        </header>
+
+        <!-- The Layer Stacking Canvas Workspace -->
+        <section id="stitch-viewport" class="m3-surface">
+            <!-- Dynamic screenshot stacks will be programmatically injected here -->
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
