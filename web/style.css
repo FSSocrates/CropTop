@@ -1,0 +1,66 @@
+/* Core Layout & Type System Alignment */
+:root {
+    --md-sys-color-background: #121212;
+    --md-sys-color-surface: #1e1e1e;
+    --md-sys-color-primary: #d0bcff;
+    --md-sys-color-on-surface: #e6e1e5;
+    --md-sys-color-outline-variant: #49454f;
+    
+    --md-sys-shape-corner-large: 16px;
+    --md-sys-shape-corner-full: 9999px;
+    
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+    padding: 0;
+}
+
+.workspace-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Polished M3 Top Action Elevation Bar */
+.m3-top-app-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background-color: var(--md-sys-color-surface);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    height: 64px;
+    box-sizing: border-box;
+}
+
+.app-bar-leading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.m3-title {
+    font-size: 22px;
+    font-weight: 400;
+    margin: 0;
+}
+
+/* The Live Layer Presentation Workspace Frame */
+.m3-surface {
+    position: relative;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Custom interactive styling for the unselected masking panels */
+.screenshot-overlay-mask {
+    opacity: 0.60;
+    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+    border-bottom: 2px dashed rgba(208, 188, 255, 0.4);
+}
