@@ -40,42 +40,37 @@ function renderWorkspaceLayers() {
     uploadedPhotos.forEach((photo, index) => {
         const layerContainer = document.createElement('div');
         layerContainer.className = 'screenshot-layer-container';
+        layerContainer.dataset.index = index;
         
         layerContainer.style.width = `${targetDisplayWidth}px`;
 
-        // Standard user photo image background masking setup
         layerContainer.style.backgroundImage = `url(${photo.imageSource.src})`;
         layerContainer.style.backgroundSize = `${targetDisplayWidth}px auto`;
         layerContainer.style.backgroundRepeat = 'no-repeat';
 
-        // Base structural design calculation rule: Layout boxes stay at their clean stitched sizing!
         const compiledHeight = photo.displayHeight - photo.cropTop - photo.cropBottom;
         layerContainer.style.height = `${compiledHeight}px`;
 
         if (projectWorkspace.selectedImageIndex === null) {
-            // Preview Mode: Display normal tight layout crops
             layerContainer.style.backgroundPosition = `0px -${photo.cropTop}px`;
             layerContainer.style.zIndex = '1';
             layerContainer.style.opacity = '1.0';
             layerContainer.style.marginTop = '0px';
             layerContainer.style.marginBottom = '0px';
         } else if (projectWorkspace.selectedImageIndex === index) {
-            // Selected Base: Stationary background anchor frame. We reveal its full original image height
             layerContainer.style.height = `${photo.displayHeight}px`;
             layerContainer.style.backgroundPosition = `0px 0px`;
             
-            // FIX: Pull adjacent elements inward over it by using negative margins matching the active crop values
             layerContainer.style.marginTop = `-${photo.cropTop}px`;
             layerContainer.style.marginBottom = `-${photo.cropBottom}px`;
             
-            layerContainer.style.zIndex = '1'; // Sits securely behind at the bottom
+            layerContainer.style.zIndex = '1'; 
             layerContainer.style.opacity = '1.0'; 
             layerContainer.classList.add('selected-base-anchor');
         } else {
-            // Stencil Overlays: Keep their normal stitched height parameters and slide on top cleanly
             layerContainer.style.backgroundPosition = `0px -${photo.cropTop}px`;
-            layerContainer.style.zIndex = '2'; // Brought to front layer
-            layerContainer.style.opacity = '0.55'; // Turned semi-transparent stencil
+            layerContainer.style.zIndex = '2'; 
+            layerContainer.style.opacity = '0.55'; 
             layerContainer.classList.add('screenshot-overlay-mask');
             layerContainer.style.marginTop = '0px';
             layerContainer.style.marginBottom = '0px';
@@ -83,7 +78,7 @@ function renderWorkspaceLayers() {
 
         layerContainer.addEventListener('click', (event) => {
             if (projectWorkspace.selectedImageIndex === index) return;
-            event.stopPropagation();
+            event.stopPropagation(); // Stops immediate viewport bubble triggering
             projectWorkspace.selectedImageIndex = index;
             renderWorkspaceLayers();
         });
@@ -93,11 +88,12 @@ function renderWorkspaceLayers() {
         if (index < uploadedPhotos.length - 1) {
             injectSeparationSeamBorder(viewport, index);
         }
-
-        if (projectWorkspace.selectedImageIndex === index) {
-            injectBoundaryBars(viewport, layerContainer, index);
-        }
     });
+
+    // FIX: Render dragging bar anchors independently at the absolute edge position points
+    if (projectWorkspace.selectedImageIndex !== null) {
+        injectBoundaryBars(viewport);
+    }
 }
 
 /***************************************************************************
@@ -127,19 +123,39 @@ function injectSeparationSeamBorder(viewport, index) {
     viewport.appendChild(seamBorder);
 }
 
-function injectBoundaryBars(viewport, layerContainer, index) {
+function injectBoundaryBars(viewport) {
+    const activeIndex = projectWorkspace.selectedImageIndex;
+    const activePhoto = uploadedPhotos[activeIndex];
+    
+    // Find our rendered element node track references
+    const layerContainers = viewport.getElementsByClassName('screenshot-layer-container');
+    let targetElement = null;
+    
+    for (let element of layerContainers) {
+        if (parseInt(element.dataset.index) === activeIndex) {
+            targetElement = element;
+            break;
+        }
+    }
+    
+    if (!targetElement) return;
+
+    // FIX: Lock handle placement coordinates directly onto the dynamic edge boundaries
+    const topBarYPosition = targetElement.offsetTop + activePhoto.cropTop;
+    const bottomBarYPosition = targetElement.offsetTop + activePhoto.displayHeight - activePhoto.cropBottom;
+
     const topBar = document.createElement('div');
     topBar.className = 'active-boundary-bar';
     topBar.style.width = `${targetDisplayWidth}px`;
-    topBar.style.top = `${layerContainer.offsetTop}px`;
-    topBar.addEventListener('pointerdown', (event) => startBarDrag(event, 'top', index));
+    topBar.style.top = `${topBarYPosition}px`;
+    topBar.addEventListener('pointerdown', (event) => startBarDrag(event, 'top', activeIndex));
     viewport.appendChild(topBar);
 
     const bottomBar = document.createElement('div');
     bottomBar.className = 'active-boundary-bar';
     bottomBar.style.width = `${targetDisplayWidth}px`;
-    bottomBar.style.top = `${layerContainer.offsetTop + layerContainer.offsetHeight}px`;
-    bottomBar.addEventListener('pointerdown', (event) => startBarDrag(event, 'bottom', index));
+    bottomBar.style.top = `${bottomBarYPosition}px`;
+    bottomBar.addEventListener('pointerdown', (event) => startBarDrag(event, 'bottom', activeIndex));
     viewport.appendChild(bottomBar);
 }
 
@@ -174,6 +190,8 @@ function setupGlobalEventListeners() {
     const uploadTrigger = document.getElementById('upload-trigger');
     const downloadTrigger = document.getElementById('download-trigger');
     const viewport = document.getElementById('stitch-viewport');
+    // Select the universal scrolling window block
+    const zoomWrapper = document.querySelector('.zoom-viewport-wrapper');
 
     uploadTrigger.addEventListener('click', () => filePicker.click());
 
@@ -219,10 +237,8 @@ function setupGlobalEventListeners() {
         const activePhoto = uploadedPhotos[projectWorkspace.selectedImageIndex];
 
         if (projectWorkspace.activeHandleType === 'top') {
-            // Adjust the top boundary displacement offset
             activePhoto.cropTop = projectWorkspace.initialCropValue + deltaPixelY;
         } else if (projectWorkspace.activeHandleType === 'bottom') {
-            // Adjust the bottom boundary displacement offset
             activePhoto.cropBottom = projectWorkspace.initialCropValue - deltaPixelY;
         }
 
@@ -235,9 +251,13 @@ function setupGlobalEventListeners() {
         document.body.style.cursor = 'default';
     });
 
-    viewport.addEventListener('click', () => {
-        projectWorkspace.selectedImageIndex = null;
-        renderWorkspaceLayers();
+    // FIX: Catch deselection clicks on the zoom container frame to prevent layer target obstruction
+    zoomWrapper.addEventListener('click', (event) => {
+        // If clicking the workspace canvas layout shell backdrop, deselect cleanly
+        if (event.target === zoomWrapper || event.target === viewport) {
+            projectWorkspace.selectedImageIndex = null;
+            renderWorkspaceLayers();
+        }
     });
 
     window.addEventListener('wheel', (event) => {
@@ -256,6 +276,7 @@ function setupGlobalEventListeners() {
         compileFinalStitchedImage(uploadedPhotos);
     });
 }
+
 
 /***************************************************************************
 7. Canvas Exporter & Engine Kickoff
