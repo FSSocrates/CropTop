@@ -1,4 +1,6 @@
-/* Core Layout & Type System Alignment */
+/* ==========================================================================
+   1. Material 3 Design Tokens & Core Variables (High-Contrast Theme)
+   ========================================================================== */
 :root {
     --md-sys-color-background: #121212;
     --md-sys-color-surface: #1e1e1e;
@@ -16,13 +18,16 @@
     padding: 0;
 }
 
+/* ==========================================================================
+   2. Main Application Structure
+   ========================================================================== */
 .workspace-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
 }
 
-/* Polished M3 Top Action Elevation Bar */
+/* Polished Material 3 Top Elevation Bar */
 .m3-top-app-bar {
     display: flex;
     justify-content: space-between;
@@ -46,7 +51,7 @@
     margin: 0;
 }
 
-/* The Live Layer Presentation Workspace Frame */
+/* The Live Layer Presentation Viewport Frame */
 .m3-surface {
     position: relative;
     flex-grow: 1;
@@ -58,9 +63,47 @@
     align-items: center;
 }
 
-/* Custom interactive styling for the unselected masking panels */
+/* ==========================================================================
+   3. CropTop Screenshot Interactivity & Layer Stacking
+   ========================================================================== */
+.screenshot-layer-container {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0px; /* Forces uniform alignment with zero spacing gaps */
+    user-select: none;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+/* Active Selection View: Anchored base stays crisp at the bottom */
+.selected-base-anchor {
+    outline: 2px solid var(--md-sys-color-outline-variant);
+}
+
+/* Context Shield View: Adjacent parts rise to front and act as a semi-transparent stencil */
 .screenshot-overlay-mask {
     opacity: 0.60;
+    border-bottom: 2px dashed rgba(208, 188, 255, 0.4); /* Thin separation border */
     transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
-    border-bottom: 2px dashed rgba(208, 188, 255, 0.4);
+}
+
+/* ==========================================================================
+   4. Draggable Boundary Handle Accent Bars
+   ========================================================================== */
+.active-boundary-bar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 360px; /* Matches the fixed mock screenshot width constraints */
+    height: 6px;
+    background-color: var(--md-sys-color-primary);
+    cursor: ns-resize;
+    z-index: 10;
+    border-radius: var(--md-sys-shape-corner-full);
+    box-shadow: 0 0 8px var(--md-sys-color-primary);
+    transition: background-color 150ms ease;
+}
+
+.active-boundary-bar:hover {
+    background-color: #e8def8; /* Slight glow illumination on mouse hover */
 }
