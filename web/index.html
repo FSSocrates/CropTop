@@ -1,50 +1,127 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CropTop Workspace</title>
+/* ==========================================================================
+   1. Material 3 Design Tokens & Core Variables (High-Contrast Theme)
+   ========================================================================== */
+:root {
+    --md-sys-color-background: #121212;
+    --md-sys-color-surface: #1e1e1e;
+    --md-sys-color-primary: #d0bcff;
+    --md-sys-color-on-surface: #e6e1e5;
+    --md-sys-color-outline-variant: #49454f;
     
-    <!-- Google Material Fonts & Design Token Symbols -->
-    <link href="https://googleapis.com" rel="stylesheet">
-    <link href="https://googleapis.com" rel="stylesheet">
+    --md-sys-shape-corner-large: 16px;
+    --md-sys-shape-corner-full: 9999px;
     
-    <link rel="stylesheet" href="style.css">
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+    padding: 0;
+}
 
-    <!-- Import Polished Material 3 Custom Elements directly via ESM Modules -->
-    <script type="module">
-        import '@esm.sh/@material/web/button/filled-button.js';
-        import '@esm.sh/@material/web/button/elevation.js';
-        import '@esm.sh/@material/web/ripple/ripple.js';
-        import '@esm.sh/@material/web/slider/slider.js';
-        import '@esm.sh/@material/web/icon/icon.js';
-    </script>
-</head>
-<body>
+/* ==========================================================================
+   2. Main Application Structure
+   ========================================================================== */
+.workspace-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
 
-    <!-- Main Application Shell Container -->
-    <main class="workspace-container">
-        
-        <!-- Interactive Header Bar Structure -->
-        <header class="m3-top-app-bar">
-            <div class="app-bar-leading">
-                <span class="material-symbols-rounded">layers</span>
-                <h1 class="m3-title">CropTop Canvas</h1>
-            </div>
-            
-            <md-filled-button id="download-trigger">
-                <md-icon slot="icon">download</md-icon>
-                Export Stitch
-            </md-filled-button>
-        </header>
+/* Polished Material 3 Top Elevation Bar */
+.m3-top-app-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background-color: var(--md-sys-color-surface);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    height: 64px;
+    box-sizing: border-box;
+    z-index: 100;
+}
 
-        <!-- The Layer Stacking Canvas Workspace -->
-        <section id="stitch-viewport" class="m3-surface">
-            <!-- Dynamic screenshot stacks will be programmatically injected here -->
-        </section>
+.app-bar-leading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-    </main>
+.m3-title {
+    font-size: 22px;
+    font-weight: 400;
+    margin: 0;
+}
 
-    <script src="app.js"></script>
-</body>
-</html>
+/* Zoom Wrapper to decouple document scrolling from scale transformations */
+.zoom-viewport-wrapper {
+    flex-grow: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px;
+}
+
+/* The Live Layer Presentation Viewport Frame */
+.m3-surface {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.empty-state-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--md-sys-color-outline-variant);
+    margin-top: 100px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   3. CropTop Screenshot Interactivity & Layer Stacking
+   ========================================================================== */
+.screenshot-layer-container {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0px; /* Forces uniform alignment with zero spacing gaps */
+    user-select: none;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+}
+
+/* Active Selection View: Anchored base stays crisp at the bottom */
+.selected-base-anchor {
+    outline: 2px solid var(--md-sys-color-primary);
+}
+
+/* Context Shield View: Adjacent parts rise to front and act as a semi-transparent stencil */
+.screenshot-overlay-mask {
+    opacity: 0.55;
+    border-bottom: 2px dashed rgba(208, 188, 255, 0.4); /* Thin separation border */
+}
+
+/* ==========================================================================
+   4. Draggable Boundary Handle Accent Bars
+   ========================================================================== */
+.active-boundary-bar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 8px;
+    background-color: var(--md-sys-color-primary);
+    cursor: ns-resize;
+    z-index: 50;
+    border-radius: var(--md-sys-shape-corner-full);
+    box-shadow: 0 0 12px var(--md-sys-color-primary);
+    transition: background-color 150ms ease, height 150ms ease;
+}
+
+.active-boundary-bar:hover {
+    background-color: #e8def8; /* Slight glow illumination on mouse hover */
+    height: 10px;
+}
