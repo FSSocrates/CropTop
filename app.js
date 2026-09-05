@@ -150,6 +150,15 @@ function startBarDrag(event, handleType, index) {
     const photo = uploadedPhotos[index];
     projectWorkspace.initialCropValue = handleType === 'top' ? photo.cropTop : photo.cropBottom;
     
+    // NEW: Safely cache the baseline crops of the neighboring photos before movement starts
+    if (handleType === 'top' && index > 0) {
+        projectWorkspace.initialNeighborCrop = uploadedPhotos[index - 1].cropBottom;
+    } else if (handleType === 'bottom' && index < uploadedPhotos.length - 1) {
+        projectWorkspace.initialNeighborCrop = uploadedPhotos[index + 1].cropTop;
+    } else {
+        projectWorkspace.initialNeighborCrop = 0;
+    }
+    
     document.body.style.cursor = 'ns-resize';
 }
 
@@ -198,7 +207,7 @@ function setupGlobalEventListeners() {
         });
     });
 
-    // Handle structural pointer adjustment drift movements safely
+    // Handle structural pointer adjustment drift movements safely without compounding runaway loops
     window.addEventListener('pointermove', (event) => {
         if (!projectWorkspace.isDraggingHandle) return;
 
@@ -208,20 +217,22 @@ function setupGlobalEventListeners() {
         const activePhoto = uploadedPhotos[projectWorkspace.selectedImageIndex];
 
         if (projectWorkspace.activeHandleType === 'top') {
+            // Absolute adjustment tracking relative to our baseline click point
             activePhoto.cropTop = projectWorkspace.initialCropValue + deltaPixelY;
             
-            // Push inverse crop shifts to layer directly above to eliminate workspace context gaps
+            // FIX: Use absolute baseline tracking instead of += to prevent the image from instantly fully cropping
             if (projectWorkspace.selectedImageIndex > 0) {
                 const abovePhoto = uploadedPhotos[projectWorkspace.selectedImageIndex - 1];
-                abovePhoto.cropBottom += deltaPixelY;
+                abovePhoto.cropBottom = projectWorkspace.initialNeighborCrop + deltaPixelY;
             }
         } else if (projectWorkspace.activeHandleType === 'bottom') {
+            // Absolute adjustment tracking relative to our baseline click point
             activePhoto.cropBottom = projectWorkspace.initialCropValue - deltaPixelY;
             
-            // Push inverse crop shifts to layer directly below to eliminate workspace context gaps
+            // FIX: Use absolute baseline tracking instead of -= to prevent the image from instantly fully cropping
             if (projectWorkspace.selectedImageIndex < uploadedPhotos.length - 1) {
                 const belowPhoto = uploadedPhotos[projectWorkspace.selectedImageIndex + 1];
-                belowPhoto.cropTop -= deltaPixelY;
+                belowPhoto.cropTop = projectWorkspace.initialNeighborCrop - deltaPixelY;
             }
         }
 
