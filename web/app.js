@@ -12,16 +12,16 @@ const projectWorkspace = {
 let uploadedPhotos = []; 
 const targetDisplayWidth = 450; // Dynamic locked width constraints
 
-/**
- * 2. Entry point. Prepares global tracking listener triggers.
- */
+/***************************************************************************
+2. Entry point. Prepares global tracking listener triggers.
+***************************************************************************/
 function initCropTop() {
     setupGlobalEventListeners();
 }
 
-/**
- * 3. Transforms coordinate systems and programmatically compiles layers into the DOM
- */
+/***************************************************************************
+3. Transforms coordinate systems and programmatically compiles layers into the DOM
+***************************************************************************/
 function renderWorkspaceLayers() {
     const viewport = document.getElementById('stitch-viewport');
     viewport.innerHTML = ''; // Fresh render loop pass
@@ -86,9 +86,9 @@ function renderWorkspaceLayers() {
     });
 }
 
-/**
- * 4a. Injects a click-sensitive line between screenshots to allow instant layer swapping via Shift + Click
- */
+/***************************************************************************
+4a. Injects a click-sensitive line between screenshots to allow instant layer swapping via Shift + Click
+***************************************************************************/
 function injectSeparationSeamBorder(viewport, index) {
     const seamBorder = document.createElement('div');
     seamBorder.className = 'interactive-seam-border';
@@ -117,9 +117,9 @@ function injectSeparationSeamBorder(viewport, index) {
     viewport.appendChild(seamBorder);
 }
 
-/**
- * 4b. Injects boundary drag handle controls tightly flush against selected layer frames
- */
+/***************************************************************************
+4b. Injects boundary drag handle controls tightly flush against selected layer frames
+***************************************************************************/
 function injectBoundaryBars(viewport, layerContainer, index) {
     // Top active boundary anchor bar
     const topBar = document.createElement('div');
@@ -138,9 +138,9 @@ function injectBoundaryBars(viewport, layerContainer, index) {
     viewport.appendChild(bottomBar);
 }
 
-/**
- * 5. Lock workspace positioning state coordinates immediately upon clicking handles
- */
+/***************************************************************************
+5. Lock workspace positioning state coordinates immediately upon clicking handles
+***************************************************************************/
 function startBarDrag(event, handleType, index) {
     event.stopPropagation();
     projectWorkspace.isDraggingHandle = true;
@@ -153,9 +153,9 @@ function startBarDrag(event, handleType, index) {
     document.body.style.cursor = 'ns-resize';
 }
 
-/**
- * 6. Orchestrates event listening parameters for file uploads, mouse dragging, and scales
- */
+/***************************************************************************
+6. Orchestrates event listening parameters for file uploads, mouse dragging, and scales
+***************************************************************************/
 function setupGlobalEventListeners() {
     const filePicker = document.getElementById('screenshot-upload-picker');
     const uploadTrigger = document.getElementById('upload-trigger');
@@ -258,9 +258,9 @@ function setupGlobalEventListeners() {
     });
 }
 
-/**
- * 7. Transforms non-destructive crop tracking logic states into unified, lossless PNG exports
- */
+/***************************************************************************
+7. Transforms non-destructive crop tracking logic states into unified, lossless PNG exports
+***************************************************************************/
 function compileFinalStitchedImage(realPhotos) {
     const masterCanvas = document.createElement("canvas");
     const masterContext = masterCanvas.getContext("2d");
