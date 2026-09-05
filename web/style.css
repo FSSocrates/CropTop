@@ -1,6 +1,6 @@
-/* ==========================================================================
-   1. Material 3 Design Tokens & Core Variables (High-Contrast Theme)
-   ========================================================================== */
+/***************************************************************************
+1. Material 3 Design Tokens & Core Variables (High-Contrast Theme)
+***************************************************************************/
 :root {
     --md-sys-color-background: #121212;
     --md-sys-color-surface: #1e1e1e;
@@ -18,9 +18,9 @@
     padding: 0;
 }
 
-/* ==========================================================================
-   2. Main Application Structure
-   ========================================================================== */
+/***************************************************************************
+2. Main Application Structure
+***************************************************************************/
 .workspace-container {
     display: flex;
     flex-direction: column;
@@ -82,9 +82,9 @@
     text-align: center;
 }
 
-/* ==========================================================================
-   3. CropTop Screenshot Interactivity & Layer Stacking
-   ========================================================================== */
+/***************************************************************************
+3. CropTop Screenshot Interactivity & Layer Stacking
+***************************************************************************/
 .screenshot-layer-container {
     position: relative;
     overflow: hidden;
@@ -105,9 +105,9 @@
     border-bottom: 2px dashed rgba(208, 188, 255, 0.4); /* Thin separation border */
 }
 
-/* ==========================================================================
-   4. Draggable Boundary Handle Accent Bars
-   ========================================================================== */
+/***************************************************************************
+4. Draggable Boundary Handle Accent Bars
+***************************************************************************/
 .active-boundary-bar {
     position: absolute;
     left: 50%;
@@ -124,4 +124,31 @@
 .active-boundary-bar:hover {
     background-color: #e8def8; /* Slight glow illumination on mouse hover */
     height: 10px;
+}
+
+/***************************************************************************
+5. Interactive Separation Seam Borders
+***************************************************************************/
+.interactive-seam-border {
+    width: 450px;
+    height: 4px;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 150ms ease;
+    z-index: 60;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Make it look like a dashed guideline ONLY when an image layer is active/selected */
+.interactive-seam-border.active-stencil-mode {
+    border-bottom: 2px dashed rgba(208, 188, 255, 0.4);
+    height: 6px;
+}
+
+/* Brighten line dramatically when mouse hovers over it to signal change capability */
+.interactive-seam-border:hover {
+    background-color: rgba(208, 188, 255, 0.3);
+    border-bottom: 2px solid var(--md-sys-color-primary);
 }
